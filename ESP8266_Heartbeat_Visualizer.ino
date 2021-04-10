@@ -1,8 +1,12 @@
 #include "Wire.h"
 #include "MAX30100_PulseOximeter.h"
 #include "Servo.h"
+#include "Adafruit_NeoPixel.h"
 
 int servoPin = 15;
+int ledPin = D5;
+int ledPixels = 1;
+
 float bpm, spO2;
 
 bool isBeat = 0; // 偵測到心跳
@@ -12,6 +16,7 @@ int posDiastole = 90; // 模擬心室舒張狀態角度
 
 PulseOximeter pox;
 Servo myservo;
+Adafruit_NeoPixel pixels(ledPixels, ledPin, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
@@ -34,6 +39,10 @@ void setup()
   myservo.attach(servoPin);
   myservo.write(posSystole);
   Serial.println("servo done");
+
+  pixels.begin();
+  pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+  pixels.show();
 }
 
 void loop()
@@ -47,12 +56,21 @@ void loop()
   {
     if (isBeat == 0)
     {
+      pixels.setPixelColor(0, pixels.Color(0, 0, 255));
+      pixels.show();
       isBeat = 1;
     }
   }
   else
   {
+    pixels.setPixelColor(0, pixels.Color(255, 0, 0));
+    pixels.show();
     isBeat = 0;
+    if (bpm == 0 && spO2 == 0)
+    {
+      pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+      pixels.show();
+    }
   }
 }
 
